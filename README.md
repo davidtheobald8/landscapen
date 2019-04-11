@@ -1,4 +1,4 @@
- # LandSCaPeN v0.1, updated 6 April 2019
+ # LandSCaPeN v0.1, April 11, 2019
  A toolbox to analyze and visualize landscape structure, composition, process, and networks in Google Earth Engine.
  Please cite as: DM Theobald. 2019. *LandSCaPeN v0.1: A Google Earth Engine toolbox to analyze and visualize landscape structure, composition, process, and networks.* Conservation Science Partners. Truckee, CA, USA. www.csp-inc.org.
  The tools are organized into landscape [composition](#comp), [structure](#stru), [process](#proc), [networks](#netw), [utilities](#util), and [visualization](#visu).
@@ -6,8 +6,12 @@
  using *lse*. For example:
 
  var lse = require('users/DavidTheobald8/LandSCaPeN:lse')
-
+ // call lse module, here example on landscapeMosaic()
  var x = lse.landscapeMosaic('NLCD', 2011, 5000)
+
+ Technical notes:
+ + parameters to functions must be in proper order and dictionary {} format is not supported
+ + 
  ## <a name="comp"></a> Composition functions
  ### lse.composition(image, resolution, region, numClasses)
 
@@ -24,24 +28,6 @@
  The resulting multi-scale average can be exported at a specified *resolution* for a given *region*, and layers of
  the individual scales can be added to the display by setting *addLayer* to true. 
  This approach was called ecological integrity (terrestrial) in Theobald 2010, 2013
- ### lse.connectivityEdge (fc, resistance, ID, resolution, maxDistance, tileScale)
- 
- ### lse.connectivityNode (nodes, resistance, ID, maxDistance, resolution)
- Calculates the mean ecological (aka functional) distance from all neighbors within *maxDistance* to a given node, from a set of nodes defined by *fc*, and
- computed using least-cost distance across a *resistance* surface at a given *resolution*. 
- Returns image with bands named: 'Count' (of within EcoDistance), MeanEcoDistance', 'MeanEucDistance'
- ### lse.connectivityProbConnectivity(nodes, resistance, resolution, maxDistance, tileScale)
-
- Calculates the probability of connectivity (aka ProtConn) landscape connectivity using "kernels" (typically regularly-spaced) calculated using cost-distance 
- across a *resistance* surface. Following [Saura and Pasual-Hortal (2007)](https://www.sciencedirect.com/science/article/pii/S0169204607000709)
-
-+ *nodes*: the nodes to connect, typically these are thought of as patches of habitat or protected areas, can be any feature type (points, lines, polygons). ee.FeatureCollection()
-+ *resistance*: resistance surface used to calculate cost-distance; ee.Image()
-+ *resolution*: the resolution of output image in meters; ee.Number()
-+ *maxDistance*: the maximum Euclidean distance to calculate cost-distance; ee.Number(). NOTE: to calculate the dispersal
-+ kernel, the distance at which the dispersal probability is 0.5 is set to one-tenth (0.1) of the maxDistance.
-+ *tileScale*: typically a value of 1 (nominal scale), but use 2 or 4 if computational limits; ee.Number()
-+ returns connectivity image... ee.Image().
  ### lse.connectivityResistantKernel(fc, resistance, resolution, maxDistance, tileScale)
 
  Calculates landscape connectivity using "kernels" (typically regularly-spaced) calculated using cost-distance 
@@ -76,13 +62,6 @@
 
 returns: image with distance into patch ("core") and away from (into "matrix")'
  ## <a name="proc"></a>Process functions
-### lse.connectivityPercolation
-  Calculates percolation connectivity as a function of a binary resistance surface (x) and sensitivity (a) to some local measure (H, typically though of as habitat suitability or human modification) R, using: 
-    x = t < r^(1-aH), where r is a uniform random value 0 to 1, a ranges from 0 (no sensitivity, i.e. random) to 1.0 (fully sensitive) 
-    to H. t is the percolation threshold, typically 0.5962 is used for rectangular structure with 8 neighbor adjacency.
-    Connectivity P is then calculated as the accumated Euclidean distance travelling the shortest distance from each node across the binary resistance surface x, averaged across distance surfaces for *iterations*.
- !!!need to fill in holes when caused by random removal, vs. those not reached.
-    
 ### lse.connectivityWatersheds
   Estimates up and downstream connectivity by calculating a statistic on an image with *values*, for watersheds, that is averaged vertically through 
   Hydrologic Unit Codes specified in *lstHUCS*. Currently only works for the conterminous US.
@@ -91,24 +70,6 @@ returns: image with distance into patch ("core") and away from (into "matrix")'
 + *extent*: ee.FeatureCollection(), specifies the extent of the watersheds
 + *statistic*: ee.String(), supported: 'mean', 'median', 'mode', 'stdDev'. Defaults to 'mean'.
 + *resolution*: ee.Number()
- ##  <a name="netw"></a>Network functions
- ### lse.landscapelNetwork (fc, ID, maxDistance)
- Builds a network of edges between *nodes*, where each edge between nodes has an ecological or functional distance
- within a maximum Euclidean distance of *maxDistance*.
- 
- + *nodes*: type = ee.FeatureCollection()
- + *ID* - 
- + *maxDistance*: - ee.Number(), the maximum Euclidean distance to calculate least-cost distance 
- ### lse.functionalNetwork (fc, resistance, ID, maxDistance, resolution)
- Builds a network of edges between nodes (*fc*), where each edge has an ecological or functional distance
- between nodes within a maximum Euclidean distance of *maxDistance*, 
- computed using least-cost distance across a *resistance* surface at a given *resolution*.
- 
- *fc* - ee.FeatureCollection()
- *resistance* - ee.FeatureCollection()
- *ID* - 
- *maxDistance* - ee.Number(), the maximum Euclidean distance to calculate least-cost distance 
- *resolution* - ee.Number(), the resolution or cell size, in m, to analyze functional aspects
  ## <a name="util"></a>Utility functions
  ### lse.addRGBimages(image1,image2)
  Adds two RGB images together to overlay them and generate a photo (RGB) image. Assumes that 
@@ -220,5 +181,5 @@ returns: image with distance into patch ("core") and away from (into "matrix")'
  zenith = ee.Number(), in degrees, ranging from 1 to 90, 45 is default
  ### lse.visualizeTissotsIndicatrix(GGlevel, distanceMeters)
  Provides a visual overlay of map scale, shape (conformality), and orientation. 
- Displays circles centered on GG tiles at level *GGlevel*, with diameter of *diameterMeters*.
+ Displays circles centered on Global Grid tiles at level *GGlevel*, with diameter of *diameterMeters*.
 + returns: null
