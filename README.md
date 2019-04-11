@@ -5,10 +5,11 @@
  To call LandSCaPeN functions, first load the module into your script through the *require()* function, and then call the function 
  using *lse*. For example:
 
+```javascript
  var lse = require('users/DavidTheobald8/LandSCaPeN:lse')
  // call lse module, here example on landscapeMosaic()
  var x = lse.landscapeMosaic('NLCD', 2011, 5000)
-
+```
  Technical notes:
  + parameters to functions must be in proper order and dictionary {} format is not supported
  + 
