@@ -6,7 +6,6 @@
  using *lse*. For example:
 
  var lse = require('users/DavidTheobald8/modules:lse')
- var x = lse.landscapeMosaic('NLCD', 2011, 5000)
 
  Technical notes:
  + parameters to functions must be in proper order and dictionary format (using {}) is *not* supported.
