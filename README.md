@@ -1,27 +1,43 @@
- # LandSCaPeN v0.1, April 11, 2019
+  # LandSCaPeN v0.2, September 14, 2019
  A toolbox to analyze and visualize landscape structure, composition, process, and networks in Google Earth Engine.
- Please cite as: DM Theobald. 2019. *LandSCaPeN v0.1: A Google Earth Engine toolbox to analyze and visualize landscape structure, composition, process, and networks.* Conservation Science Partners. Truckee, CA, USA. www.csp-inc.org.
+ Please cite as: DM Theobald. 2019. *LandSCaPeN v0.2: A Google Earth Engine toolbox to analyze and visualize landscape structure, composition, process, and networks.* [www.davidmtheobald.com](https:davidmtheobald.com).
  The tools are organized into landscape [composition](#comp), [structure](#stru), [process](#proc), [networks](#netw), [utilities](#util), and [visualization](#visu).
  To call LandSCaPeN functions, first load the module into your script through the *require()* function, and then call the function 
  using *lse*. For example:
 
- var lse = require('users/DavidTheobald8/LandSCaPeN:lse')
- // call lse module, here example on landscapeMosaic()
+ var lse = require('users/DavidTheobald8/modules:lse')
  var x = lse.landscapeMosaic('NLCD', 2011, 5000)
 
  Technical notes:
- + parameters to functions must be in proper order and dictionary {} format is not supported
+ + parameters to functions must be in proper order and dictionary format (using {}) is *not* supported.
  + 
  ## <a name="comp"></a> Composition functions
- ### lse.composition(image, resolution, region, numClasses)
+ ### lse.compositionFC(fc, propertyClass, propertyValue, propertyWeight)
 
- Calculates the area of land cover/use types assuming an integer that contains nominal/class raster data.
+ Summarizes an attribute (*propertyValue*) for features from a Feature Collection using a property (*propertyClass*) that contains nominal/class data.
+
++ *fc*: feature collection with polygons, ee.FeatureCollection()
++ *propertyClass*: name of the "class" property in *fc* to summarize on, ee.String()
++ *propertyValue*: name of the "value" property in *fc* that describes the values to summarize, ee.String()
++ *propertyWeight*: name of the property in *fc* to calculate weighted statistics. Defaults to the *propertyValue*. Needs to contain numerical values, ee.Number()
++ returns: a feature collection with summarized statistics for each unique value in *propertyClass* for Export.table.toDrive, ee.FeatureCollection().
+
+ Note: when quantifying a summary measure of patch size, it is recommended to use Weighted Mean Patch Size [Li and Archer 1997](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=weighted+mean+patch+size+li+and+archer&btnG=&oq=weight). (use the meanWeighted statistic)
+ Also, compositional statistics are also known as Patch Richness and Class Area Proportion [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
+ ### lse.compositionImage(image, resolution, region)
+
+ Calculates the area of classes for an image (raster), assuming nominal/class image vlaues.
  Also known as Patch Richness and Class Area Proportion [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
 
 + *image*: image with integer values representing nominal values, type = ee.Image()
 + *resolution*: size of cells in meters used for sampling image, type ee.Number()
 + *region*: area to calculate, type ee.Geometry()
-+ returns the number of classes, and the area and proportion of each nominal (class) type in an image, type ee.String().
++ returns: a feature collection with summarized statistics for each class for Export.table.toDrive, ee.FeatureCollection().
+ ### lse.uniqueValues(fc, property)
+ Summarizes a feature collection and provides a list of the unique values for a given property.
++  *fc*: ee.FeatureCollection(), the feature collection with >0 features to summarize.
++  *property*: ee.String(), the property (aka field) contained in the FeatureCollection with either integer or string values.
++  returns a list of the unique values in a given property, type ee.List().
  ## <a name="stru"></a> Structural functions
  ### lse.connectivityEcologicalIntegrity (image, radii, resolution, addLayers)
  Calculates the spatial context of an *image* using the mean value within multi-scale circles of specified by a list of *radii*. 
@@ -42,51 +58,59 @@
 +   need to be interpreted carefully, and typical in relative terms, because the dispersal kernel is applied to cost-distance units.
 + *tileScale*: typically a value of 1 (nominal scale), but use 2 or 4 if computational limits; ee.Number()
 + returns connectivity image named "DispersalMean", ee.Image().
- ### lse.landscapeMosaic(LC, year, radius)
+ ### lse.landscapeMosaic(landCover, lstRemap, radius)
 
  Calculates and visualizes the landscape mosaic, as described by [Riitters et al. (2009)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Riitters%2C+K.+H.%2C+Wickham%2C+J.+D.%2C+%26+Wade%2C+T.+G.+%282009%29.+An+indicator+of+forest+dynamics+using+a+shifting+landscape+mosaic&btnG=)
  Note that water is considered as null.
-+ *LC*: the desired land cover dataset, currently "NLCD" (National Land Cover Dataset), "CEC" (North American Commission on Environmental Cooperation), "GlobCover" (European Space Agency's GlobCover )
-+ *year*, for NLCD currently 2001, 2006, or 2011; for CEC use 2010; for GlobCover use 2010, type= ee.Number()
++ *landCover*: the desired land cover dataset
++ *lstFrom*, a list with classes from the raw land cover map, ee.List()
++ *lstTo*, a list with classes from the raw land cover map, ee.List()
++ + For example, for NLCD: var lstFrom = [11,12,21,22,23,24,31,41,42,43,52,71,81,82,90,95]
++ +                        var lstTo =   [ 3, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3]
 + *radius*: the radius of moving window in meters, type ee.Number()
-+ *resolution*: the resolution of the exported asset, type ee.Number()
-+ returns mosaic image and adds the landscape mosaic layer to the map window.
- 
- Example: 
- var imageLandMosaic = lse.landscapeMosaic('NLCD', 2011, 1000)
- ### lse.landscapeSignature(image, maxDistance, interval, geometry)
++ returns mosaic image and draws the landscape mosaic in the map window.
+ ### lse.landscapeSignature(habitat, maxDistance, interval, geometry)
  This function characterizes the structure within patches as well as between patches (landscape level), following [Theobald (2003)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Theobald%2C+DM+GIS+Concepts+and+ARCGIS+Methods&btnG=)
-+ *image*: a binary representation of habitat (0=matrix, >0 is "patch"), type: ee.Image()
++ *habitat*: a binary representation of habitat (0=matrix, >0 is "patch"), type: ee.Image()
++ *maxDistance*: the maximum distance to calculate distance from the nearest patch, ee.Number()
 + *interval*: the bin size in meters, ee.Number()
 + *region*: a user-defined geometry (typically polygon) to build histogram, type: ee.Geometry()
 
 returns: image with distance into patch ("core") and away from (into "matrix")'
  ## <a name="proc"></a>Process functions
-### lse.connectivityWatersheds
-  Estimates up and downstream connectivity by calculating a statistic on an image with *values*, for watersheds, that is averaged vertically through 
+### lse.connectivityWatersheds(values, extent, statistic, resolution)
+  Estimates up and downstream connectivity by calculating a statistic on an image.
++ *values*, for watersheds, that is averaged vertically through 
   Hydrologic Unit Codes specified in *lstHUCS*. Currently only works for the conterminous US.
-+ *values*: ee.Image() with values to summarize
-+ *lstHUCS*: ee.List(), of HUC values, defaults to: ['02','04','06','08','10','12']
-+ *extent*: ee.FeatureCollection(), specifies the extent of the watersheds
++ *extent*: ee.String(), geographic extent to analyze. Currently supports "US" (uses Watershed Boundary Dataset) or "global" (WWF HydroSHEDS basins)
 + *statistic*: ee.String(), supported: 'mean', 'median', 'mode', 'stdDev'. Defaults to 'mean'.
 + *resolution*: ee.Number()
  ## <a name="util"></a>Utility functions
- ### lse.addRGBimages(image1,image2)
- Adds two RGB images together to overlay them and generate a photo (RGB) image. Assumes that 
- input images are RGB values (a list of 3 integers from 0 to 255). Returns the combined RGB image.
- *image1* = ee.Image()
- *image2* = ee.Image()
- returns ee.Image() 
- ### lse.summarizeZones(values, zones, statistic, resolution, areaWeighted)
+### lse.valuesToRanks(values, extent, resolution, start, end, increment)
+  Converts values in an image to the rank order.
++ *values*: an image with continuous (real) values to be ranked, ee.Image()
++ *extent*: geographic extent to analyze, ee.String().
++ *resolution*: width of a pixel, in meters. ee.Number()
+ ### lse.summarizeZones(values, zones, lstStatistics, resolution, extent)
  Summarizes the values from an image (*values*) within *zones* specified by a FeatureCollection.
- The *statistic* is calculated for each zone at the *resolution* specified, and will be 
- weighted by the area of a pixel if *areaWeighted* is true (default).
+ Each statistic in the *lstStatistics* is calculated for each zone at the *resolution* specified. 
  *values* = ee.Image()
- *zones* = ee.FeatureCollection()
- *statistic* = ee.String(), 'mean', 'sum', 'median'
+ *zones* = the zones or regions used to summarize over. Can be either ee.FeatureCollection() or ee.Image()
+ *lstStatistics* = ee.List() of strings that can include: 'deciles', 'mean', 'median', 'percentiles','quartiles', 'skew', 'stdDev', 'sum', 'variance'
  *resolution* = ee.Number()
- *areaWeighted* = ee.Boolean(), true by default
- returns ee.FeatureCollection 
+ *extent* = ee.Geometry()
+ returns ee.FeatureCollection()
+ ### lse.deleteListOfAssets(lst)
+ *lst* = list of asset Ids to be deleted
+ returns null 
+ ### lse.ingestListOfAssets(lst)
+ *lst* = list of asset Ids to be ingested
+ returns null 
+ ### lse.getListOfAssets(folder, match, type)
+ *folder* = asset folder to get list. Do not include finishing '/'. ee.String()
+ *match* = string of characters to match in the list of assetIds. ee.String()
+ *type* = type of asset, either: "Table" or "Image". ee.String()
+ returns ee.List() 
  ### lse.chili(fc, dem, resolution, dayOfYearStart, dayOfYearEnd)
  Calculates the Continuous Heat-Insolation Load Index for pixels specified by *fc* using 
  elevation data from *dem* at the specified *resolution*. 
@@ -97,10 +121,6 @@ returns: image with distance into patch ("core") and away from (into "matrix")'
  *dayOfYearStart* = ee.Number(), Julian day from 0 to 365, will wrap the year's end if needed.
  *dayOfYearEnd* = ee.Number(), Julian day from 0 to 365, will wrap the year's end if needed.
  returns ee.FeatureCollection 
- ### lse.uniqueValues(fc, property)
- Summarizes a property in a feature class and provides a list of the unique values.
- *fc*: ee.FeatureCollection(), the feature collection with >0 features to summarize.
- *property*: ee.String(), the property (aka field) contained in the FeatureCollection with either integer or string values.
  ### lse.snapImage(resolutionMeters, extent)
  This function returns parameters for input into Export.image() used to snap an image
  to a common origin, and calculates an integer number of pixels for the specified extent and resolution (following Matt Hancher's example)
@@ -139,6 +159,11 @@ returns: image with distance into patch ("core") and away from (into "matrix")'
  Provides a list of strings that contain the hydrologic unit codes at the 2nd code level (e.g., upper Colorado River basin is '14')
  + returns: ee.List()
  ##  <a name="visu"></a>Visualization functions
+ ### lse.colorPalette(name, numClasses)
+ Provides a color palette based on popular color ramp schemes.
+ + *name*: ee.String(), name of color ramp. Currently supports : "viridisCividis", "viridisInferno", "viridisMagma", and "viridisViridis". See: https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+ + *numClasses*: ee.Number(), the number of discrete colors from 2 to 10
+ + returns: ee.String() in palette form
  ### lse.visualizeNodes(nodes, sizeProperty, colorProperty, lstPtSizes, lstPtSizeBreaks, color)
  Display circles centered at *nodes* with radius in cells calculated as *sizeProperty* with *lstPtSizeBreaks* applied to the size property, displayed using circles of *lstPtSizes*.
 + *nodes*: ee.FeatureCollection()
