@@ -1,4 +1,4 @@
-  # LandSCaPeN v0.2, September 14, 2019
+   # LandSCaPeN v0.2, September 14, 2019
  A toolbox to analyze and visualize landscape structure, composition, process, and networks in Google Earth Engine.
  Please cite as: DM Theobald. 2019. *LandSCaPeN v0.2: A Google Earth Engine toolbox to analyze and visualize landscape structure, composition, process, and networks.* [www.davidmtheobald.com](https:davidmtheobald.com).
  The tools are organized into landscape [composition](#comp), [structure](#stru), [process](#proc), [networks](#netw), [utilities](#util), and [visualization](#visu).
@@ -9,7 +9,6 @@
 
  Technical notes:
  + parameters to functions must be in proper order and dictionary format (using {}) is *not* supported.
- + 
  ## <a name="comp"></a> Composition functions
  ### lse.compositionFC(fc, propertyClass, propertyValue, propertyWeight)
 
@@ -25,8 +24,9 @@
  Also, compositional statistics are also known as Patch Richness and Class Area Proportion [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
  ### lse.compositionImage(image, resolution, region)
 
- Calculates the area of classes for an image (raster), assuming nominal/class image vlaues.
- Also known as Patch Richness and Class Area Proportion [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
+ Calculates the area of classes for an image (raster), assuming nominal/class image values.
+ Also summarizes patches for each class.
+ These are also known as Class Area Proportion and Patch Richness [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
 
 + *image*: image with integer values representing nominal values, type = ee.Image()
 + *resolution*: size of cells in meters used for sampling image, type ee.Number()
@@ -68,21 +68,19 @@
 + +                        var lstTo =   [ 3, 3, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3]
 + *radius*: the radius of moving window in meters, type ee.Number()
 + returns mosaic image and draws the landscape mosaic in the map window.
- ### lse.landscapeSignature(habitat, maxDistance, interval, geometry)
+ ### lse.landscapeSignature(patches, resolution, maxDistance, geometry)
  This function characterizes the structure within patches as well as between patches (landscape level), following [Theobald (2003)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Theobald%2C+DM+GIS+Concepts+and+ARCGIS+Methods&btnG=)
 + *habitat*: a binary representation of habitat (0=matrix, >0 is "patch"), type: ee.Image()
++ *resolution*: the size of pixels in meters, ee.Number()
 + *maxDistance*: the maximum distance to calculate distance from the nearest patch, ee.Number()
-+ *interval*: the bin size in meters, ee.Number()
-+ *region*: a user-defined geometry (typically polygon) to build histogram, type: ee.Geometry()
-
++ *AOI*: user-defined area of interest summarized by histogram, type: ee.Geometry()
 returns: image with distance into patch ("core") and away from (into "matrix")'
  ## <a name="proc"></a>Process functions
-### lse.connectivityWatersheds(values, extent, statistic, resolution)
-  Estimates up and downstream connectivity by calculating a statistic on an image.
-+ *values*, for watersheds, that is averaged vertically through 
-  Hydrologic Unit Codes specified in *lstHUCS*. Currently only works for the conterminous US.
-+ *extent*: ee.String(), geographic extent to analyze. Currently supports "US" (uses Watershed Boundary Dataset) or "global" (WWF HydroSHEDS basins)
-+ *statistic*: ee.String(), supported: 'mean', 'median', 'mode', 'stdDev'. Defaults to 'mean'.
+### lse.connectivityWatersheds(values, lstFCs, statistic, resolution)
+  Estimates up and downstream connectivity by calculating a statistic on values that are within each watershed, at multiple hierarchical watershed levels.
++ *values*: image with values to summarize by watershed, ee.Image().
++ *lstFCs*: a list of the Feature Collections that contain watersheds at different levels, ee.List().
++ *statistic*: ee.String(), supported: 'max', 'mean', 'median', 'min', 'mode', 'stdDev', 'sum'. Defaults to 'mean'.
 + *resolution*: ee.Number()
  ## <a name="util"></a>Utility functions
 ### lse.valuesToRanks(values, extent, resolution, start, end, increment)
