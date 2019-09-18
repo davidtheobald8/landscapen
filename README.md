@@ -1,4 +1,4 @@
-   # LandSCaPeN v0.2, September 14, 2019
+  # LandSCaPeN v0.2, September 18, 2019
  A toolbox to analyze and visualize landscape structure, composition, process, and networks in Google Earth Engine.
  Please cite as: DM Theobald. 2019. *LandSCaPeN v0.2: A Google Earth Engine toolbox to analyze and visualize landscape structure, composition, process, and networks.* [www.davidmtheobald.com](https:davidmtheobald.com).
  The tools are organized into landscape [composition](#comp), [structure](#stru), [process](#proc), [networks](#netw), [utilities](#util), and [visualization](#visu).
@@ -11,22 +11,20 @@
  + parameters to functions must be in proper order and dictionary format (using {}) is *not* supported.
  ## <a name="comp"></a> Composition functions
  ### lse.compositionFC(fc, propertyClass, propertyValue, propertyWeight)
-
  Summarizes an attribute (*propertyValue*) for features from a Feature Collection using a property (*propertyClass*) that contains nominal/class data.
-
 + *fc*: feature collection with polygons, ee.FeatureCollection()
 + *propertyClass*: name of the "class" property in *fc* to summarize on, ee.String()
-+ *propertyValue*: name of the "value" property in *fc* that describes the values to summarize, ee.String()
-+ *propertyWeight*: name of the property in *fc* to calculate weighted statistics. Defaults to the *propertyValue*. Needs to contain numerical values, ee.Number()
-+ returns: a feature collection with summarized statistics for each unique value in *propertyClass* for Export.table.toDrive, ee.FeatureCollection().
++ *propertyValue*: name of the "value" property in *fc* that describes the values to summarize. Must contain numerical values, ee.String()
++ *propertyWeight*: name of the property in *fc* used to calculate weighted statistics. Defaults to the *propertyValue*. Must contain numerical values, ee.String()
++ returns: a feature collection with summarized statistics for each unique value in *propertyClass* to Export.table.toDrive.
 
- Note: when quantifying a summary measure of patch size, it is recommended to use Weighted Mean Patch Size [Li and Archer 1997](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=weighted+mean+patch+size+li+and+archer&btnG=&oq=weight). (use the meanWeighted statistic)
- Also, compositional statistics are also known as Patch Richness and Class Area Proportion [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
+ Note: when quantifying a summary measure of patch size, it is recommended to use the "meanWeighted" statistic, which is known as Weighted Mean Patch Size ([Li and Archer 1997](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=weighted+mean+patch+size+li+and+archer&btnG=&oq=weight))
+ Also, compositional statistics are also known as Patch Richness and Class Area Proportion [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=).
  ### lse.compositionImage(image, resolution, region)
 
  Calculates the area of classes for an image (raster), assuming nominal/class image values.
- Also summarizes patches for each class.
- These are also known as Class Area Proportion and Patch Richness [Leitao et al. (2006)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)
+ These are also known as Class Area Proportion and Patch Richness ([Leitao et al. 2006](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Measuring+Landscapes&btnG=)).
+ Future plans to include summarizes of patches in each class.
 
 + *image*: image with integer values representing nominal values, type = ee.Image()
 + *resolution*: size of cells in meters used for sampling image, type ee.Number()
@@ -38,27 +36,7 @@
 +  *property*: ee.String(), the property (aka field) contained in the FeatureCollection with either integer or string values.
 +  returns a list of the unique values in a given property, type ee.List().
  ## <a name="stru"></a> Structural functions
- ### lse.connectivityEcologicalIntegrity (image, radii, resolution, addLayers)
- Calculates the spatial context of an *image* using the mean value within multi-scale circles of specified by a list of *radii*. 
- The resulting multi-scale average can be exported at a specified *resolution* for a given *region*, and layers of
- the individual scales can be added to the display by setting *addLayer* to true. 
- This approach was called ecological integrity (terrestrial) in Theobald 2010, 2013
- ### lse.connectivityResistantKernel(fc, resistance, resolution, maxDistance, tileScale)
-
- Calculates landscape connectivity using "kernels" (typically regularly-spaced) calculated using cost-distance 
- across a *resistance* surface. [Compton et al. (2007)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=compton+resistant+kernel&btnG=)
-
-+ *fc*: the locations (usually points) to center kernels. ee.FeatureCollection()
-+ *resistance*: resistance surface used to calculate cost-distance; ee.Image()
-+ *resolution*: the resolution of output image in meters; ee.Number()
-+ *maxDistance*: the maximum Euclidean distance (meters) to calculate cost-distance; ee.Number(). NOTE: to calculate the dispersal
-+   kernel, the distance at which the dispersal probability is set to 1% chance at the maxDistance,
-+   but applied to the ecological (cumulative cost) distance (e.g., 1% chance of reaching 100 km, theta=0.0000461). Therefore, the resulting dispersal probabilities
-+   need to be interpreted carefully, and typical in relative terms, because the dispersal kernel is applied to cost-distance units.
-+ *tileScale*: typically a value of 1 (nominal scale), but use 2 or 4 if computational limits; ee.Number()
-+ returns connectivity image named "DispersalMean", ee.Image().
  ### lse.landscapeMosaic(landCover, lstRemap, radius)
-
  Calculates and visualizes the landscape mosaic, as described by [Riitters et al. (2009)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C6&q=Riitters%2C+K.+H.%2C+Wickham%2C+J.+D.%2C+%26+Wade%2C+T.+G.+%282009%29.+An+indicator+of+forest+dynamics+using+a+shifting+landscape+mosaic&btnG=)
  Note that water is considered as null.
 + *landCover*: the desired land cover dataset
@@ -75,7 +53,23 @@
 + *maxDistance*: the maximum distance to calculate distance from the nearest patch, ee.Number()
 + *AOI*: user-defined area of interest summarized by histogram, type: ee.Geometry()
 returns: image with distance into patch ("core") and away from (into "matrix")'
++ Note: this is similar to "GISFrag" metric: [Ripple et al. (1991)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=Measuring+forest+landscape+patterns+in+the+cascade+range+of+Oregon%2C+USA&btnG=).
  ## <a name="proc"></a>Process functions
+ ### lse.connectivityResistantKernel(fc, resistance, resolution, maxDistance, tileScale)
+
+ Calculates landscape connectivity using "kernels" (typically regularly-spaced) calculated using cost-distance 
+ across a *resistance* surface. [Compton et al. (2007)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=compton+resistant+kernel&btnG=)
+
++ *fc*: the locations (usually points) to center kernels. ee.FeatureCollection()
++ *resistance*: resistance surface used to calculate cost-distance; ee.Image()
++ *resolution*: the resolution of output image in meters; ee.Number()
++ *maxDistance*: the maximum Euclidean distance (meters) used to calculate cost-distance; ee.Number(). NOTE: to calculate the dispersal
++   kernel, the distance at which the dispersal probability is set to 1% chance at the maxDistance,
++   but applied to the ecological (cumulative cost) distance (e.g., 1% chance of reaching 100 km, theta=0.0000461). 
++   Therefore, the resulting dispersal probabilities need to be interpreted carefully, and typical in relative terms, 
++   because the dispersal kernel is applied to cost-distance units.
++ *tileScale*: typically a value of 1 (nominal scale), but use 2 or 4 if computational limits; ee.Number()
++ returns connectivity image named "DispersalMean", ee.Image().
 ### lse.connectivityWatersheds(values, lstFCs, statistic, resolution)
   Estimates up and downstream connectivity by calculating a statistic on values that are within each watershed, at multiple hierarchical watershed levels.
 + *values*: image with values to summarize by watershed, ee.Image().
@@ -93,7 +87,7 @@ returns: image with distance into patch ("core") and away from (into "matrix")'
  Each statistic in the *lstStatistics* is calculated for each zone at the *resolution* specified. 
  *values* = ee.Image()
  *zones* = the zones or regions used to summarize over. Can be either ee.FeatureCollection() or ee.Image()
- *lstStatistics* = ee.List() of strings that can include: 'deciles', 'mean', 'median', 'percentiles','quartiles', 'skew', 'stdDev', 'sum', 'variance'
+ *lstStatistics* = ee.List() of strings that can include: 'deciles', 'max', 'mean', 'median', 'min', 'percentiles','quartiles', 'skew', 'stdDev', 'sum', 'variance'
  *resolution* = ee.Number()
  *extent* = ee.Geometry()
  returns ee.FeatureCollection()
