@@ -1,9 +1,10 @@
 # LandSCaPeN documentation -- under revision!
 ```mermaid
-  graph TD;
+  graph LR;
       A(LandSCaPeN)
       A-->B;
-      A-->C;
+      A-->C1;
+      A-->D1;
       %%(HM CA) users/DavidTheobald8/HM/HM_202204/HM_Y2Y_CA_2020_90_60sland%%
 
       B(Ecosystem attributes)
@@ -15,18 +16,46 @@
 
       B1(Composition)
       B1-->B11
-      B1-->B12
-      
-      B11(Features Comp)
-      B12(Image Comp)
+      B1-->B12    
+      B1-->B13    
+      B11(Features)
+      B12(Image)
+      B13(Diversity-Representation)
       
       B2(Structure)
+      B2-->B21
+      B2-->B22
+      B2-->B23
+      B21(Multi-scale power frag)
+      B22(Landscape mosaic)
+      B23(Landscape signature GISFrag)
+
       B3(Process)
+      B3-->B31
+      B3-->B32
+      B3-->B33
+      B31(Resistant kernel)
+      B32(Connectivity corridors)
+      B33(Hierarchical watersheds)
+
       B4(Network)
 %%      click C "https://code.earthengine.google.com/?scriptPath=users%2FDavidTheobald8%2FEXP_Y2Y%3ACalculate%20multi-scale%20percolation"     
 
-           
-      C(Utilities)-->D;
+      C1(Summaries)
+      C1-->C11
+      C1-->C12
+      C11(Zonal stats)
+      C12(Summarize by weighted area)
+      
+      D1(Utilities)
+      D1-->D11
+      D1-->D12
+      D1-->D13
+      D1-->D14    
+      D11(Values to ranks)
+      D12(Values percentiles)
+      D13(Add ID)
+      D14(Terrain)
 
 ```
 # LandSCaPeN v0.2, September 18, 2019
