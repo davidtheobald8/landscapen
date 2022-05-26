@@ -1,4 +1,35 @@
-  # LandSCaPeN v0.2, September 18, 2019
+# LandSCaPeN documentation -- under revision!
+```mermaid
+  graph TD;
+      A(LandSCaPeN)
+      A-->B;
+      A-->C;
+      %%(HM CA) users/DavidTheobald8/HM/HM_202204/HM_Y2Y_CA_2020_90_60sland%%
+
+      B(Ecosystem attributes)
+      B-->B1;
+      B-->B2;
+      B-->B3;
+      B-->B4;
+      %%(HM US) users/DavidTheobald8/HM/HM_202204/HM_Y2Y_US_2020_90_60sland%%
+
+      B1(Composition)
+      B1-->B11
+      B1-->B12
+      
+      B11(Features Comp)
+      B12(Image Comp)
+      
+      B2(Structure)
+      B3(Process)
+      B4(Network)
+%%      click C "https://code.earthengine.google.com/?scriptPath=users%2FDavidTheobald8%2FEXP_Y2Y%3ACalculate%20multi-scale%20percolation"     
+
+           
+      C(Utilities)-->D;
+
+```
+# LandSCaPeN v0.2, September 18, 2019
  A toolbox to analyze and visualize landscape structure, composition, process, and networks in Google Earth Engine.
  Please cite as: DM Theobald. 2019. *LandSCaPeN v0.2: A Google Earth Engine toolbox to analyze and visualize landscape structure, composition, process, and networks.* [www.davidmtheobald.com](https:davidmtheobald.com).
  The tools are organized into landscape [composition](#comp), [structure](#stru), [process](#proc), [networks](#netw), [utilities](#util), and [visualization](#visu).
