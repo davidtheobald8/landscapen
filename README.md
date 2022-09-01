@@ -8,8 +8,9 @@
  var lse = require('users/DavidTheobald8/libs:lse')
 
  ```
- var lse = require('users/DavidTheobald8/libs:lse')
- Technical notes:
+ Note that the tools are not accessible currently while in alpha stage -- anticipated October 1 2022 for beta release.
+ 
+Technical notes:
  + parameters to functions must be in proper order and dictionary format (using {}) is *not* supported.
  ```mermaid
    graph LR;
