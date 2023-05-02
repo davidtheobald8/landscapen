@@ -8,7 +8,7 @@
  var lse = require('users/DavidTheobald8/libs:lse')
 
  ```
- *Note that the tools are not accessible currently while in alpha stage -- anticipated October 15, 2022 for beta release.*
+ *Note that the tools are not accessible currently while in alpha stage -- anticipated July 31, 2023 for beta release.*
  
 Technical notes:
  + parameters to functions must be in proper order and dictionary format (using {}) is *not* supported.
